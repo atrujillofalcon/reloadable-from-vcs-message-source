@@ -4,5 +4,5 @@ import java.io.File;
 
 public interface SvnClient {
 
-    public boolean checkoutRepositoryPath(File destinyFile, String svnProtocol, String svnHost, int svnPort, String rootRepositoryPath, String relativePath);
+    public boolean checkoutRepositoryPath(File destinyFile, String svnProtocol, String svnHost, int svnPort, String webappFolderPath);
 }

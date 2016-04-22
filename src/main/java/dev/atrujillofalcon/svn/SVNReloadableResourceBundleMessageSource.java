@@ -19,16 +19,17 @@ import java.io.File;
  */
 public class SVNReloadableResourceBundleMessageSource extends ReloadableResourceBundleMessageSource {
 
-
-    private String svnProjectRoot;
     private String svnWebappPath;
     private String svnHost;
     private String svnProtocol = "svn";
+    private String tmpFolderName = "svn_co";
+    private String svnUser;
+    private String svnPass;
     private boolean nativeToAscii;
     private int svnPort = 3690;
 
     @Autowired
-    ResourceLoader resourceLoader;
+    private ResourceLoader resourceLoader;
 
     @Override
     protected PropertiesHolder refreshProperties(String filename, PropertiesHolder propHolder) {
@@ -38,16 +39,15 @@ public class SVNReloadableResourceBundleMessageSource extends ReloadableResource
     }
 
     private synchronized void doCheckoutAndCopy(Resource resourceLang) {
-        SvnClient svnClient = SvnClientFactory.createSvnClient();
-        String tempFolderName = "svn_co";
+        SvnClient svnClient = SvnClientFactory.createSvnClient(svnUser, svnPass);
         try {
             if (resourceLang != null && resourceLang.exists() && resourceLang instanceof ServletContextResource) {
                 String relativePath = svnWebappPath + ((ServletContextResource) resourceLang).getPath();
-                relativePath = relativePath.substring(0, relativePath.lastIndexOf('/'));
-                File svnTempFolder = FileUtil.createCleanTempFolder(tempFolderName);
-                svnClient.checkoutRepositoryPath(svnTempFolder, svnProtocol, svnHost, svnPort, svnProjectRoot, relativePath);
+                relativePath = relativePath.substring(0, relativePath.lastIndexOf(File.separator));
+                File svnTempFolder = FileUtil.createCleanTempFolder(tmpFolderName);
+                svnClient.checkoutRepositoryPath(svnTempFolder, svnProtocol, svnHost, svnPort, svnWebappPath);
 
-                File pulledFile = new File(svnTempFolder.getAbsolutePath().concat("/").concat(resourceLang.getFilename()));
+                File pulledFile = new File(svnTempFolder.getAbsolutePath().concat(File.separator).concat(resourceLang.getFilename()));
                 if (pulledFile.exists() && pulledFile.isFile())
                     FileUtil.nativeToAsciiFileCopy(pulledFile, resourceLang.getFile());
             }
@@ -56,14 +56,6 @@ public class SVNReloadableResourceBundleMessageSource extends ReloadableResource
         }
     }
 
-    public String getSvnProjectRoot() {
-        return svnProjectRoot;
-    }
-
-    @Required
-    public void setSvnProjectRoot(String svnProjectRoot) {
-        this.svnProjectRoot = svnProjectRoot;
-    }
 
     public String getSvnProtocol() {
         return svnProtocol;
@@ -105,5 +97,31 @@ public class SVNReloadableResourceBundleMessageSource extends ReloadableResource
     @Required
     public void setSvnWebappPath(String svnWebappPath) {
         this.svnWebappPath = svnWebappPath;
+    }
+
+    public String getTmpFolderName() {
+        return tmpFolderName;
+    }
+
+    public void setTmpFolderName(String tmpFolderName) {
+        this.tmpFolderName = tmpFolderName;
+    }
+
+    public String getSvnUser() {
+        return svnUser;
+    }
+
+    @Required
+    public void setSvnUser(String svnUser) {
+        this.svnUser = svnUser;
+    }
+
+    public String getSvnPass() {
+        return svnPass;
+    }
+
+    @Required
+    public void setSvnPass(String svnPass) {
+        this.svnPass = svnPass;
     }
 }

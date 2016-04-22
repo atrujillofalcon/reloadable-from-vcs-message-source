@@ -11,7 +11,6 @@ import java.io.File;
 
 public class SvnClientImpl implements SvnClient {
 
-
     private String user;
     private String pass;
 
@@ -21,22 +20,20 @@ public class SvnClientImpl implements SvnClient {
     }
 
 
-    public boolean checkoutRepositoryPath(File destinyFile, String svnProtocol, String svnHost, int svnPort, String rootRepositoryPath, String relativePath) {
+    public boolean checkoutRepositoryPath(File destinyFile, String svnProtocol, String svnHost, int svnPort, String webappFolderPath) {
         SVNClientManager clientManager = SVNClientManager.newInstance(new DefaultSVNOptions(), user, pass);
         SVNRevision revision = SVNRevision.HEAD;
         //SVN PUERTO POR DEFECTO 3690
         boolean success = false;
         try {
-            if (clientManager.getUpdateClient().doExport(SVNURL.create(svnProtocol, null, svnHost, 3690, rootRepositoryPath + relativePath, false)
-                    , destinyFile, null, revision,null,true, SVNDepth.INFINITY) >= 0)
+            if (clientManager.getUpdateClient().doExport(SVNURL.create(svnProtocol, null, svnHost, 3690, webappFolderPath, false)
+                    , destinyFile, null, revision, null, true, SVNDepth.INFINITY) >= 0)
                 success = true;
         } catch (SVNException e) {
             System.err.println("Error doing checkout. Returning not acomplished");
         }
         return success;
     }
-
-
 
 
 }
